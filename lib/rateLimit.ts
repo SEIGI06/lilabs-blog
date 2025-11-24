@@ -4,7 +4,7 @@ const rateLimitMap = new Map<string, number[]>();
 
 // Configuration
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000; // 10 minutes en millisecondes
-const MAX_REQUESTS = 3; // Maximum 3 messages par IP toutes les 10 minutes
+const MAX_REQUESTS = 2; // Maximum 2 messages par IP toutes les 10 minutes
 
 /**
  * Vérifie si une IP a dépassé la limite de requêtes
