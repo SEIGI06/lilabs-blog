@@ -38,7 +38,19 @@ export async function POST(request: NextRequest) {
             'unknown';
         const userAgent = request.headers.get('user-agent') || 'unknown';
 
-        // 4. Vérifier la configuration Supabase
+        // 4. Vérifier le rate limiting (anti-spam)
+        const { isRateLimited } = await import('@/lib/rateLimit');
+        if (isRateLimited(ip)) {
+            return NextResponse.json(
+                {
+                    error: 'Trop de tentatives',
+                    details: 'Vous avez dépassé la limite de 3 messages toutes les 10 minutes. Veuillez réessayer plus tard.'
+                },
+                { status: 429 } // 429 Too Many Requests
+            );
+        }
+
+        // 5. Vérifier la configuration Supabase
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -53,7 +65,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 5. Enregistrer dans Supabase
+        // 6. Enregistrer dans Supabase
         const supabase = createClient();
         const { error: supabaseError } = await supabase
             .from('contact_messages')
@@ -95,7 +107,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 6. Retourner le succès
+        // 7. Retourner le succès
         // Note: L'envoi d'email via EmailJS se fait côté client pour des raisons de sécurité
         return NextResponse.json(
             {
