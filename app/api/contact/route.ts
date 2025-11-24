@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
         // 5. Enregistrer dans Supabase
         const supabase = createClient();
-        const { data, error: supabaseError } = await supabase
+        const { error: supabaseError } = await supabase
             .from('contact_messages')
             .insert([
                 {
@@ -67,9 +67,8 @@ export async function POST(request: NextRequest) {
                     user_agent: userAgent,
                     status: 'new'
                 }
-            ])
-            .select()
-            .single();
+            ]);
+        // Note: On n'utilise PAS .select() car les utilisateurs anon n'ont pas le droit de lire (RLS)
 
         if (supabaseError) {
             console.error('Supabase error:', supabaseError);
@@ -96,13 +95,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 5. Retourner le succès
+        // 6. Retourner le succès
         // Note: L'envoi d'email via EmailJS se fait côté client pour des raisons de sécurité
         return NextResponse.json(
             {
                 success: true,
-                message: 'Message envoyé avec succès',
-                id: data.id
+                message: 'Message envoyé avec succès'
             },
             { status: 200 }
         );
