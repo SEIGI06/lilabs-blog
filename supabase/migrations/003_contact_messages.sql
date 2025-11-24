@@ -48,14 +48,15 @@ CREATE INDEX IF NOT EXISTS idx_contact_messages_email_date
 -- Activer RLS
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
--- Policy 1: Tout le monde peut insérer un message (public)
-CREATE POLICY "Public can insert contact messages"
+-- Policy 1: TOUT LE MONDE peut insérer un message (visiteurs anonymes + utilisateurs connectés)
+-- IMPORTANT: "anon" = visiteurs NON CONNECTÉS (c'est ce qu'on veut!)
+CREATE POLICY "Anyone can insert contact messages"
   ON contact_messages 
   FOR INSERT
-  TO anon, authenticated
+  TO public  -- public = anon + authenticated combinés
   WITH CHECK (true);
 
--- Policy 2: Seuls les utilisateurs authentifiés peuvent lire
+-- Policy 2: Seuls les utilisateurs authentifiés peuvent lire (pour le dashboard admin)
 CREATE POLICY "Authenticated users can view all messages"
   ON contact_messages 
   FOR SELECT
