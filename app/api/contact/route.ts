@@ -38,7 +38,22 @@ export async function POST(request: NextRequest) {
             'unknown';
         const userAgent = request.headers.get('user-agent') || 'unknown';
 
-        // 4. Enregistrer dans Supabase
+        // 4. Vérifier la configuration Supabase
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseKey || supabaseUrl === 'https://placeholder.supabase.co') {
+            console.error('Supabase configuration missing or invalid');
+            return NextResponse.json(
+                {
+                    error: 'Configuration Supabase manquante',
+                    details: 'Les variables d\'environnement Supabase ne sont pas configurées'
+                },
+                { status: 500 }
+            );
+        }
+
+        // 5. Enregistrer dans Supabase
         const supabase = createClient();
         const { data, error: supabaseError } = await supabase
             .from('contact_messages')
@@ -58,8 +73,25 @@ export async function POST(request: NextRequest) {
 
         if (supabaseError) {
             console.error('Supabase error:', supabaseError);
+
+            // Messages d'erreur plus détaillés
+            let errorMessage = 'Erreur lors de l\'enregistrement du message';
+            let errorDetails = supabaseError.message;
+
+            if (supabaseError.code === '42P01') {
+                errorMessage = 'La table contact_messages n\'existe pas';
+                errorDetails = 'Veuillez exécuter le script SQL dans Supabase (voir SETUP_CONTACT.md)';
+            } else if (supabaseError.code === '42501') {
+                errorMessage = 'Permissions insuffisantes';
+                errorDetails = 'Vérifiez les politiques RLS dans Supabase';
+            }
+
             return NextResponse.json(
-                { error: 'Erreur lors de l\'enregistrement du message' },
+                {
+                    error: errorMessage,
+                    details: errorDetails,
+                    code: supabaseError.code
+                },
                 { status: 500 }
             );
         }

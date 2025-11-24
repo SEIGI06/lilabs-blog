@@ -30,24 +30,35 @@ export default function ContactPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Erreur lors de l\'envoi');
+                // Afficher le message d'erreur détaillé
+                console.error('API Error:', data);
+                throw new Error(data.details || data.error || 'Erreur lors de l\'envoi');
             }
 
             // 2. Envoyer l'email via EmailJS (côté client)
             const emailjs = (await import('@emailjs/browser')).default;
 
-            await emailjs.send(
-                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-                process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-                {
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    subject: formData.subject,
-                    message: formData.message,
-                    sent_at: new Date().toLocaleString('fr-FR'),
-                },
-                process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-            );
+            // Vérifier que les variables EmailJS sont configurées
+            const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+            const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+            const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+            if (serviceId && templateId && publicKey) {
+                await emailjs.send(
+                    serviceId,
+                    templateId,
+                    {
+                        from_name: formData.name,
+                        from_email: formData.email,
+                        subject: formData.subject,
+                        message: formData.message,
+                        sent_at: new Date().toLocaleString('fr-FR'),
+                    },
+                    publicKey
+                );
+            } else {
+                console.warn('EmailJS not configured - message saved to database only');
+            }
 
             // 3. Succès
             setStatus('success');
