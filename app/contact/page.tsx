@@ -48,11 +48,11 @@ export default function ContactPage() {
                     serviceId,
                     templateId,
                     {
-                        from_name: formData.name,
-                        from_email: formData.email,
+                        name: formData.name,
+                        email: formData.email,
                         subject: formData.subject,
                         message: formData.message,
-                        sent_at: new Date().toLocaleString('fr-FR'),
+                        created_at: new Date().toLocaleString('fr-FR'),
                     },
                     publicKey
                 );
