@@ -149,7 +149,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 </div>
 
                 {/* Article content */}
-                <div className="max-w-4xl prose prose-invert prose-lg max-w-none text-justify
+                <div className="max-w-4xl lg:max-w-6xl prose prose-invert prose-lg max-w-none text-justify
                     prose-headings:font-bold prose-headings:tracking-tight
                     prose-h1:text-4xl prose-h1:mb-4
                     prose-h2:text-3xl prose-h2:mb-3 prose-h2:mt-12
