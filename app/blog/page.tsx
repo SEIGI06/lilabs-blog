@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Metadata } from 'next';
 import { formatDateShort } from '@/lib/utils';
 import { Pagination } from '@/components/Pagination';
+import { SearchBar } from '@/components/SearchBar';
 
 const POSTS_PER_PAGE = 12;
 
@@ -44,6 +45,11 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
                         {totalCount} article{totalCount > 1 ? 's' : ''} • Page {currentPage} sur {totalPages}
                     </p>
                 )}
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-8">
+                <SearchBar />
             </div>
 
             {articles.length === 0 ? (
