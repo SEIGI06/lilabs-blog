@@ -42,7 +42,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
     return (
         <>
-            <article className="max-w-5xl mx-auto px-6 py-12">
+            <article className="max-w-5xl mx-auto px-8 py-12">
                 {/* Back button */}
                 <Link
                     href="/blog"
