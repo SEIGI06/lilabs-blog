@@ -42,7 +42,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
     return (
         <>
-            <article className="max-w-5xl mx-auto px-6 py-12">
+            <article className="max-w-5xl mx-auto px-8 py-12">
                 {/* Back button */}
                 <Link
                     href="/blog"
@@ -149,7 +149,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 </div>
 
                 {/* Article content */}
-                <div className="prose prose-invert prose-lg mx-auto
+                <div className="prose prose-invert prose-lg mx-auto text-justify
                     prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-white
                     prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
                     prose-h2:text-3xl prose-h2:mb-4 prose-h2:mt-12 prose-h2:border-none

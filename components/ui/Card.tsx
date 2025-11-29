@@ -22,11 +22,11 @@ export function Card({ title, date, excerpt, href, className, tags, content, cov
         <Link
             href={href}
             className={cn(
-                "group block py-8 transition-all",
+                "group block py-8 transition-all w-full",
                 className
             )}
         >
-            <article className="flex flex-col md:flex-row gap-6">
+            <article className="flex flex-col md:flex-row gap-6 w-full">
                 {/* Cover Image */}
                 {coverImage && (
                     <div className="relative w-full md:w-80 aspect-video flex-shrink-0 rounded-xl overflow-hidden bg-gray-800">
@@ -41,7 +41,7 @@ export function Card({ title, date, excerpt, href, className, tags, content, cov
                     </div>
                 )}
 
-                <div className="flex-1 flex flex-col gap-4">
+                <div className="flex-1 flex flex-col gap-4 w-full">
                     {/* Meta information */}
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400">
                         {author && (
@@ -104,5 +104,3 @@ export function Card({ title, date, excerpt, href, className, tags, content, cov
         </Link>
     );
 }
-
-

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import { Metadata } from 'next';
 
 export default function ContactPage() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -18,11 +17,62 @@ export default function ContactPage() {
         e.preventDefault();
         setStatus('loading');
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // 1. Enregistrer dans Supabase via l'API
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Afficher le message d'erreur détaillé
+                console.error('API Error:', data);
+                throw new Error(data.details || data.error || 'Erreur lors de l\'envoi');
+            }
+
+            // 2. Envoyer l'email via EmailJS (côté client)
+            const emailjs = (await import('@emailjs/browser')).default;
+
+            // Vérifier que les variables EmailJS sont configurées
+            const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+            const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+            const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+            if (serviceId && templateId && publicKey) {
+                await emailjs.send(
+                    serviceId,
+                    templateId,
+                    {
+                        sent_at: new Date().toLocaleString('fr-FR'),
+                        from_name: formData.name,
+                        from_email: formData.email,
+                        subject: formData.subject,
+                        message: formData.message,
+                    },
+                    publicKey
+                );
+            } else {
+                console.warn('EmailJS not configured - message saved to database only');
+            }
+
+            // 3. Succès
             setStatus('success');
             setFormData({ name: '', email: '', subject: '', message: '' });
-        }, 1500);
+
+            // Reset le statut après 5 secondes
+            setTimeout(() => setStatus('idle'), 5000);
+        } catch (error) {
+            console.error('Error:', error);
+            setStatus('error');
+
+            // Reset le statut d'erreur après 5 secondes
+            setTimeout(() => setStatus('idle'), 5000);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -54,7 +104,9 @@ export default function ContactPage() {
                             <Mail className="w-6 h-6 text-blue-500" />
                         </div>
                         <h3 className="font-semibold mb-2">Email</h3>
-                        <p className="text-sm text-gray-400">contact@antigravity.io</p>
+                        <p className="text-sm text-gray-400">
+                            {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'contact@lilabs.fr'}
+                        </p>
                     </div>
 
                     <div className="glass-effect rounded-xl p-6 text-center">
@@ -151,7 +203,7 @@ export default function ContactPage() {
 
                         <button
                             type="submit"
-                            disabled={status === 'loading' || status === 'success'}
+                            disabled={status === 'loading'}
                             className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             {status === 'loading' ? (
@@ -181,6 +233,19 @@ export default function ContactPage() {
                                 <CheckCircle className="w-5 h-5 text-green-500" />
                                 <p className="text-sm text-green-500">
                                     Merci pour votre message ! Nous vous répondrons très bientôt.
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {status === 'error' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3"
+                            >
+                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                <p className="text-sm text-red-500">
+                                    Une erreur est survenue. Veuillez réessayer.
                                 </p>
                             </motion.div>
                         )}

@@ -34,7 +34,7 @@ export async function getPosts(limit?: number): Promise<Article[]> {
         return [];
     }
 
-    return data.map((post) => ({
+    return data.map((post: any) => ({
         id: post.id,
         title: post.title,
         slug: post.slug,
@@ -67,7 +67,7 @@ export async function getPostsPaginated(page: number = 1, pageSize: number = 12)
         return [];
     }
 
-    return data.map((post) => ({
+    return data.map((post: any) => ({
         id: post.id,
         title: post.title,
         slug: post.slug,
@@ -125,5 +125,128 @@ export async function getPostBySlug(slug: string): Promise<Article | null> {
         coverImage: data.cover_image,
         author: data.author || 'Lilabs Team',
     };
+}
+
+/**
+ * Search for posts matching a query across title, content, excerpt, and tags
+ * @param query - The search query string
+ * @returns Array of matching articles
+ */
+export async function searchPosts(query: string): Promise<Article[]> {
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.warn('Supabase credentials missing, returning empty list');
+        return [];
+    }
+
+    // Return empty array if query is empty or too short
+    if (!query || query.trim().length < 2) {
+        return [];
+    }
+
+    const searchQuery = `%${query.trim()}%`;
+
+    const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .or(`title.ilike.${searchQuery},summary.ilike.${searchQuery},content.ilike.${searchQuery}`)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error searching posts:', error);
+        return [];
+    }
+
+    // Map the results and also filter by tags in memory (since Supabase array search can be tricky)
+    const results = data.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        date: post.created_at,
+        excerpt: post.summary,
+        content: post.content,
+        tags: post.tags || ['Tech', 'Innovation'],
+        coverImage: post.cover_image,
+        author: post.author || 'Lilabs Team',
+    }));
+
+    // Also filter by tags in case the query matches a tag
+    const lowerQuery = query.toLowerCase().trim();
+    return results.filter((article: Article) => {
+        // Already matched by Supabase query, or matches a tag
+        const matchesTag = article.tags.some((tag: string) =>
+            tag.toLowerCase().includes(lowerQuery)
+        );
+        return true || matchesTag; // Keep all results from Supabase query + tag matches
+    });
+}
+
+/**
+ * Get posts filtered by a specific tag
+ * @param tag - The tag to filter by
+ * @returns Array of articles with the specified tag
+ */
+export async function getPostsByTag(tag: string): Promise<Article[]> {
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.warn('Supabase credentials missing, returning empty list');
+        return [];
+    }
+
+    const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .contains('tags', [tag])
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching posts by tag:', error);
+        return [];
+    }
+
+    return data.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        date: post.created_at,
+        excerpt: post.summary,
+        content: post.content,
+        tags: post.tags || ['Tech', 'Innovation'],
+        coverImage: post.cover_image,
+        author: post.author || 'Lilabs Team',
+    }));
+}
+
+/**
+ * Get all unique tags from all posts with article counts
+ * @returns Array of objects with tag name and count
+ */
+export async function getAllTags(): Promise<{ tag: string; count: number }[]> {
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.warn('Supabase credentials missing, returning empty list');
+        return [];
+    }
+
+    const { data, error } = await supabase
+        .from('posts')
+        .select('tags');
+
+    if (error) {
+        console.error('Error fetching tags:', error);
+        return [];
+    }
+
+    // Flatten all tags and count occurrences
+    const tagMap = new Map<string, number>();
+
+    data.forEach((post: any) => {
+        const tags = post.tags || [];
+        tags.forEach((tag: string) => {
+            tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+        });
+    });
+
+    // Convert to array and sort by count (descending)
+    return Array.from(tagMap.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
 }
 
