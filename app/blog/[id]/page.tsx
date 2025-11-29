@@ -149,27 +149,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 </div>
 
                 {/* Article content */}
-                <div className="prose prose-invert prose-lg mx-auto text-justify
-                    prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-white
-                    prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
-                    prose-h2:text-3xl prose-h2:mb-4 prose-h2:mt-12 prose-h2:border-none
-                    prose-h3:text-2xl prose-h3:mb-3 prose-h3:mt-8
-                    prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6 prose-p:text-base
-                    prose-a:text-blue-400 prose-a:no-underline hover:prose-a:text-blue-300 hover:prose-a:underline prose-a:transition-colors
-                    prose-strong:text-white prose-strong:font-semibold
-                    prose-em:text-gray-200
-                    prose-code:text-pink-400 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-                    prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:p-6 prose-pre:my-6
-                    prose-blockquote:border-l-4 prose-blockquote:border-l-blue-500 prose-blockquote:bg-gray-900/50 prose-blockquote:p-6 prose-blockquote:rounded-r-lg prose-blockquote:text-gray-300 prose-blockquote:italic prose-blockquote:my-6
-                    prose-ul:list-disc prose-ul:ml-6 prose-ul:my-6
-                    prose-ol:list-decimal prose-ol:ml-6 prose-ol:my-6
-                    prose-li:text-gray-300 prose-li:mb-2 prose-li:leading-relaxed
-                    prose-table:border-collapse prose-table:w-full prose-table:my-6
-                    prose-th:bg-gray-800 prose-th:p-3 prose-th:text-left prose-th:font-semibold prose-th:text-white prose-th:border prose-th:border-gray-700
-                    prose-td:p-3 prose-td:border prose-td:border-gray-800 prose-td:text-gray-300
-                    prose-img:rounded-xl prose-img:shadow-2xl prose-img:my-8
-                    prose-hr:border-gray-800 prose-hr:my-12
-                ">
+                <div className="article-content">
                     <ReactMarkdown>{article.content}</ReactMarkdown>
                 </div>
 
