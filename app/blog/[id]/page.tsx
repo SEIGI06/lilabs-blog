@@ -151,7 +151,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
                 {/* Article content */}
                 <div className="article-content">
-                    <ReactMarkdown>{article.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
                 </div>
 
                 {/* Article footer */}
