@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getPostBySlug } from "@/lib/data";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,6 +13,37 @@ interface PageProps {
     params: Promise<{
         id: string;
     }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { id } = await params;
+    const article = await getPostBySlug(id);
+
+    if (!article) {
+        return {
+            title: "Article introuvable | Lilabs",
+            description: "Cet article n'existe pas ou a été supprimé.",
+        };
+    }
+
+    return {
+        title: `${article.title} | Lilabs`,
+        description: article.excerpt,
+        openGraph: {
+            title: article.title,
+            description: article.excerpt,
+            type: 'article',
+            publishedTime: article.date,
+            authors: article.author ? [article.author] : undefined,
+            images: article.coverImage ? [{ url: article.coverImage }] : undefined,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: article.title,
+            description: article.excerpt,
+            images: article.coverImage ? [article.coverImage] : undefined,
+        },
+    };
 }
 
 export const revalidate = 0;
